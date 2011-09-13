@@ -143,14 +143,13 @@ function Smalltalk(){
 
     /* Answer all registered Packages as Array */
 
-    st.packages.all = function() {
+    st.allPackages = function() {
 	var packages = [];
 	for(var i in st.packages) {
-          if (!st.packages.hasOwnProperty(i) || typeof(st.packages[i]) === "function") continue;
 	    packages.push(st.packages[i]);
 	}
-	return packages
-    };
+	return packages;
+    }
 
     /* Answer all registered Smalltalk classes */
 

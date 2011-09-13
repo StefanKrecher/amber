@@ -664,7 +664,7 @@ smalltalk.method({
 selector: 'packages',
 fn: function (){
 var self=this;
-return self.packages.all();
+return self.allPackages();
 return self;}
 }),
 smalltalk.Smalltalk);

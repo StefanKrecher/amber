@@ -303,7 +303,7 @@ parseError: anException parsing: aString
 !Smalltalk methodsFor: 'packages'!
 
 packages
-	<return self.packages.all()>
+	<return self.allPackages()>
 !
 
 packageAt: packageName
