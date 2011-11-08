@@ -478,6 +478,20 @@ classDeclarationTemplate
 
 selectedPackage
 	^selectedPackage
+!
+
+reloadOnServer
+selectedPackage ifNotNil: [
+  jQuery 
+			ajax: 'FileServer?reload:'
+			options: #{
+				'type' -> 'POST'.
+				'success' -> [ :message | window alert: message].
+				'error' -> [window alert: 'error'].
+				"'dataType' -> 'jsonp'."
+				'data' -> selectedPackage
+			}.
+  ]
 ! !
 
 !Browser methodsFor: 'actions'!
@@ -813,7 +827,13 @@ renderTopPanelOn: html
         			html button
 					title: 'Remove this package from the system';
 					onClick: [self removePackage];
-					with: 'Remove'].
+					with: 'Remove'.
+		              (smalltalk at: #runsOnNode) notNil ifTrue: [
+                                    html button
+					title: 'Reload this package on the server';
+					onClick: [self reloadOnServer];
+					with: 'Server'.]
+			].
 			classesList := ClassesList on: self.
 			classesList renderOn: html.
 			protocolsList := html ul class: 'jt_column browser protocols'.

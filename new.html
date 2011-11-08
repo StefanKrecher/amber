@@ -1,0 +1,52 @@
+<!DOCTYPE html> 
+<html> 
+  <head> 
+    <title>Create a new Account</title> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
+    <meta name="author" content="Stefan Krecher" /> 
+    <link rel="stylesheet" type="text/css" href='css/style.css' /> 
+    <link type="image/x-icon" rel="shortcut icon" href="/favicon.ico"/> 
+    <link href='http://fonts.googleapis.com/css?family=Istok+Web' rel='stylesheet' type='text/css'> 
+			<script type='text/javascript' src='js/amber.js'></script> 
+		</head> 
+		<body> 
+		<a href="#" onClick="smalltalk.uc._showCreateAccount()">Create account <a/>
+		&nbsp;
+		<a href="#" onClick="smalltalk.uc._showLogin()">Login<a/>
+		&nbsp;
+		<a href="#" onClick="smalltalk.uc._showBrowse()">Browse public packages<a/>
+		
+		<div id="createAccount">
+		<h3>Create a new Account</h3>
+			<p>Username:<br><input id="createUsername" type="text" size="30" maxlength="30"></p>
+			<p>Email:<br><input id="createEmail" type="text" size="30" maxlength="40"></p>
+			<p>Password:<br><input id="createPassword" type="password" size="20" maxlength="20"></p>
+			<a href="#" onClick="smalltalk.uc._createAccount()">Create account<a/>
+		</div>
+		
+		<div id="login">
+		<h3>Login with an existing account</h3>
+		<p>Username:<br><input id="loginUsername" type="text" size="30" maxlength="30"></p>
+		<p>Password:<br><input id="loginPassword" type="password" size="20" maxlength="20"></p>
+		<a href="#" onClick="smalltalk.uc._login()">Login<a/>
+		</div>
+		
+		<div id="browse">
+		<h3>Browse public packages</h3>
+		<div id="packages">
+		</div>
+		</div>
+		
+		
+		<p><b><a onClick="smalltalk.Browser._open()" href="#">open Class browser</a></b></p> 
+		
+		<script type='text/javascript'> amber.load 
+		({
+		files: ['CloudNodeClient.js', 'FileServer.js'],
+		ready: function() {
+			smalltalk.uc = smalltalk.UserContainer._new();
+			smalltalk.uc._showLogin()
+		}}); 
+		</script> 
+		</body> 
+	</html> 

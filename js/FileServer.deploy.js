@@ -1,4 +1,5 @@
-smalltalk.addClass('FileServer', smalltalk.Object, ['path', 'http', 'fs', 'url', 'port', 'basePath', 'sys'], 'FileServer');
+smalltalk.addPackage('FileServer', {"version":"0.8"});
+smalltalk.addClass('FileServer', smalltalk.Object, ['path', 'http', 'fs', 'url', 'port', 'basePath', 'sys', 'db'], 'FileServer');
 smalltalk.addMethod(
 '_basePath',
 smalltalk.method({
@@ -47,6 +48,7 @@ fn: function () {
     self['@fs'] = smalltalk.send(self, "_require_", ["fs"]);
     self['@sys'] = smalltalk.send(self, "_require_", ["sys"]);
     self['@url'] = smalltalk.send(self, "_require_", ["url"]);
+    self['@db'] = smalltalk.send(self, "_require_", ["mongodb"]);
     return self;
 }
 }),
@@ -94,7 +96,6 @@ smalltalk.method({
 selector: 'handleRequest:respondTo:',
 fn: function (aRequest, aResponse) {
     var self = this;
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(unescape("Request-method%3A%20"), "__comma", [smalltalk.send(aRequest, "_method", [])])]);
     ($receiver = smalltalk.send(smalltalk.send(aRequest, "_method", []), "__eq", ["PUT"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_handlePUTRequest_respondTo_", [aRequest, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_handlePUTRequest_respondTo_", [aRequest, aResponse]);}]);
     ($receiver = smalltalk.send(smalltalk.send(aRequest, "_method", []), "__eq", ["GET"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_handleGETRequest_respondTo_", [aRequest, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_handleGETRequest_respondTo_", [aRequest, aResponse]);}]);
     ($receiver = smalltalk.send(smalltalk.send(aRequest, "_method", []), "__eq", ["POST"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_handlePOSTRequest_respondTo_", [aRequest, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_handlePOSTRequest_respondTo_", [aRequest, aResponse]);}]);
@@ -111,9 +112,14 @@ fn: function (aRequest, aResponse) {
     var self = this;
     var uri = nil;
     var filename = nil;
-    uri = smalltalk.send(smalltalk.send(self['@url'], "_parse_", [smalltalk.send(aRequest, "_url", [])]), "_pathname", []);
-    filename = smalltalk.send(self['@path'], "_join_with_", [smalltalk.send(self, "_basePath", []), uri]);
-    smalltalk.send(self['@path'], "_exists_do_", [filename, function (boolean) {return ($receiver = boolean).klass === smalltalk.Boolean ? !$receiver ? function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}() : function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}() : smalltalk.send($receiver, "_ifFalse_ifTrue_", [function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}, function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}]);}]);
+    var urlObj = nil;
+    var pathElements = nil;
+    urlObj = smalltalk.send(self['@url'], "_parse_parseQueryString_", [smalltalk.send(aRequest, "_url", []), true]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("path: ", "__comma", [smalltalk.send(urlObj, "_pathname", [])])]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("urlObj query ", "__comma", [smalltalk.send(urlObj, "_query", [])])]);
+    uri = smalltalk.send(urlObj, "_pathname", []);
+    pathElements = smalltalk.send(uri, "_tokenize_", [unescape("/")]);
+    ($receiver = smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_size", []), "__eq", [3]), "_and_", [function () {return smalltalk.send(smalltalk.send(pathElements, "_second", []), "__eq", ["packages"]);}])).klass === smalltalk.Boolean ? $receiver ? function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("TRUE%21")]);return smalltalk.send(self, "_respondPackageSt_properties_to_", [smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_third", []), "_tokenize_", ["."]), "_first", []), smalltalk.send(urlObj, "_query", []), aResponse]);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("FALSE%21")]);filename = smalltalk.send(self['@path'], "_join_with_", [smalltalk.send(self, "_basePath", []), uri]);return smalltalk.send(self['@path'], "_exists_do_", [filename, function (boolean) {return ($receiver = boolean).klass === smalltalk.Boolean ? !$receiver ? function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}() : function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}() : smalltalk.send($receiver, "_ifFalse_ifTrue_", [function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}, function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}]);}]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("TRUE%21")]);return smalltalk.send(self, "_respondPackageSt_properties_to_", [smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_third", []), "_tokenize_", ["."]), "_first", []), smalltalk.send(urlObj, "_query", []), aResponse]);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("FALSE%21")]);filename = smalltalk.send(self['@path'], "_join_with_", [smalltalk.send(self, "_basePath", []), uri]);return smalltalk.send(self['@path'], "_exists_do_", [filename, function (boolean) {return ($receiver = boolean).klass === smalltalk.Boolean ? !$receiver ? function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}() : function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}() : smalltalk.send($receiver, "_ifFalse_ifTrue_", [function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}, function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}]);}]);}]);
     return self;
 }
 }),
@@ -127,7 +133,6 @@ fn: function (aRequest, aResponse) {
     var self = this;
     var stream = nil;
     smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("PUT RequestURL: ", "__comma", [smalltalk.send(aRequest, "_url", [])])]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("PUT Request: ", "__comma", [aRequest])]);
     stream = smalltalk.send(self['@fs'], "_createWriteStream_", [smalltalk.send(".", "__comma", [smalltalk.send(aRequest, "_url", [])])]);
     smalltalk.send(aRequest, "_setEncoding_", ["utf8"]);
     smalltalk.send(aRequest, "_on_do_", ["data", function (data) {return smalltalk.send(stream, "_write_", [data]);}]);
@@ -229,12 +234,211 @@ smalltalk.method({
 selector: 'handlePOSTRequest:respondTo:',
 fn: function (aRequest, aResponse) {
     var self = this;
-    var stream = nil;
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("POST RequestURL: ", "__comma", [smalltalk.send(aRequest, "_url", [])])]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("POST Request: ", "__comma", [aRequest])]);
+    var data = nil;
+    var requestURL = nil;
+    var params = nil;
+    var ret = nil;
+    requestURL = smalltalk.send(aRequest, "_url", []);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("POST RequestURL: ", "__comma", [requestURL])]);
     smalltalk.send(aRequest, "_setEncoding_", ["utf8"]);
-    smalltalk.send(aRequest, "_on_do_", ["data", function (data) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [data]);return smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(data, "_at_", ["a"])]);}]);
-    smalltalk.send(aRequest, "_on_do_", ["end", function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["POST OK"]);return smalltalk.send(self, "_respondOKTo_", [aResponse]);}]);
+    smalltalk.send(aRequest, "_on_do_", ["data", function (tmpData) {return data = tmpData;}]);
+    smalltalk.send(aRequest, "_on_do_", ["end", function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("POST OK: ", "__comma", [data])]);params = smalltalk.send(smalltalk.send(requestURL, "_trimLeft_", [unescape("/")]), "_tokenize_", [unescape("%3F")]);return smalltalk.send(self, "_try_catch_", [function () {return ($receiver = smalltalk.send(smalltalk.send(data, "_notNil", []), "_and_", [function () {return ($receiver = smalltalk.send(data, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0]);}])).klass === smalltalk.Boolean ? $receiver ? function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("Parameter: ", "__comma", [params])]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["createAccount:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["login:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["reload:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["commitPackage:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);return ($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["browse:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}]);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["keine Parameter: "]);return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.Smalltalk || Smalltalk, "_current", []), "_at_", [smalltalk.send(params, "_at_", [1])]), "_perform_", [smalltalk.send(params, "_at_", [2])]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("Parameter: ", "__comma", [params])]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["createAccount:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["login:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["reload:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["commitPackage:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);return ($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["browse:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}]);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["keine Parameter: "]);return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.Smalltalk || Smalltalk, "_current", []), "_at_", [smalltalk.send(params, "_at_", [1])]), "_perform_", [smalltalk.send(params, "_at_", [2])]);}]);}, function () {return smalltalk.send(self, "_respondInternalErrorTo_", [aResponse]);}]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_createAccount_response_',
+smalltalk.method({
+selector: 'createAccount:response:',
+fn: function (data, resp) {
+    var self = this;
+    var err = nil;
+    var mongo = nil;
+    var crit = nil;
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("NEW createAccount: ", "__comma", [data])]);
+    mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
+    crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(crit, "_at_put_", ["_id", smalltalk.send(data, "_at_", ["_id"])]);
+    smalltalk.send(mongo, "_find_criteria_do_", ["users", smalltalk.send(crit, "_asJSONString", []), function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, "Username already taken"]);}() : function () {smalltalk.send(mongo, "_insert_document_", ["users", data]);return smalltalk.send(self, "_respondOKTo_message_", [resp, "User successfully created."]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, "Username already taken"]);}, function () {smalltalk.send(mongo, "_insert_document_", ["users", data]);return smalltalk.send(self, "_respondOKTo_message_", [resp, "User successfully created."]);}]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_login_response_',
+smalltalk.method({
+selector: 'login:response:',
+fn: function (data, resp) {
+    var self = this;
+    var err = nil;
+    var mongo = nil;
+    var crit = nil;
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("LOGIN ", "__comma", [data])]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("user: ", "__comma", [smalltalk.send(data, "_at_", ["_id"])])]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("PW: ", "__comma", [smalltalk.send(data, "_at_", ["password"])])]);
+    smalltalk.send(self, "_login_password_onSuccess_onError_", [smalltalk.send(data, "_at_", ["_id"]), smalltalk.send(data, "_at_", ["password"]), function () {return smalltalk.send(self, "_respondOKTo_message_", [resp, "login successfull"]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_respondInternalErrorTo_message_',
+smalltalk.method({
+selector: 'respondInternalErrorTo:message:',
+fn: function (aResponse, aMessage) {
+    var self = this;
+    (function ($rec) {smalltalk.send($rec, "_writeHead_options_", [500, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [aMessage]);return smalltalk.send($rec, "_end", []);}(aResponse));
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_respondOKTo_message_',
+smalltalk.method({
+selector: 'respondOKTo:message:',
+fn: function (aResponse, aMessage) {
+    var self = this;
+    (function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [aMessage]);return smalltalk.send($rec, "_end", []);}(aResponse));
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_reload_response_',
+smalltalk.method({
+selector: 'reload:response:',
+fn: function (aPackage, resp) {
+    var self = this;
+    var src = nil;
+    var filename = nil;
+    filename = smalltalk.send(smalltalk.send(unescape("st/"), "__comma", [aPackage]), "__comma", [".st"]);
+    src = fs.readFileSync(filename, "utf8");
+    smalltalk.send(smalltalk.send(smalltalk.Importer || Importer, "_new", []), "_importString_", [src]);
+    smalltalk.send(self, "_respondOKTo_message_", [resp, smalltalk.send(smalltalk.send("Package ", "__comma", [aPackage]), "__comma", [" reloaded on the server."])]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_commit_response_',
+smalltalk.method({
+selector: 'commit:response:',
+fn: function (data, resp) {
+    var self = this;
+    var json = nil;
+    var err = nil;
+    var mongo = nil;
+    var crit = nil;
+    var user = nil;
+    var password = nil;
+    var packageName = nil;
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["commit "]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("DATA: ", "__comma", [data])]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["commit 2"]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("commit: ", "__comma", [smalltalk.send(data, "_at_", ["packageName"])])]);
+    user = smalltalk.send(data, "_at_", ["user"]);
+    password = smalltalk.send(data, "_at_", ["password"]);
+    packageName = smalltalk.send(data, "_at_", ["packageName"]);
+    smalltalk.send(data, "_at_put_", ["password", ""]);
+    smalltalk.send(self, "_login_password_onSuccess_onError_", [user, password, function () {return smalltalk.send(self, "_checkOwner_user_onSuccess_onError_", [packageName, user, function () {mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);smalltalk.send(mongo, "_insert_document_", ["packages", data]);return smalltalk.send(self, "_respondOKTo_message_", [resp, "Package saved."]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_respondPackageSt_properties_to_',
+smalltalk.method({
+selector: 'respondPackageSt:properties:to:',
+fn: function (aPackageName, props, aResponse) {
+    var self = this;
+    var mongo = nil;
+    var crit = nil;
+    mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
+    crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(crit, "_at_put_", ["packageName", aPackageName]);
+    smalltalk.send(crit, "_at_put_", ["packageMeta.version", smalltalk.send(props, "_at_", ["version"])]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(crit, "_asJSON", [])]);
+    smalltalk.send(mongo, "_find_criteria_do_", ["packages", smalltalk.send(crit, "_asJSON", []), function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["st"])]);return smalltalk.send($rec, "_end", []);}(aResponse);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["st"])]);return smalltalk.send($rec, "_end", []);}(aResponse);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_respondPublicPackageListTo_',
+smalltalk.method({
+selector: 'respondPublicPackageListTo:',
+fn: function (aResponse) {
+    var self = this;
+    var mongo = nil;
+    var crit = nil;
+    var sortDict = nil;
+    var omitDict = nil;
+    mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
+    crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    sortDict = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(sortDict, "_at_put_", ["packageName", 1]);
+    smalltalk.send(sortDict, "_at_put_", ["packageMeta.version", 1]);
+    omitDict = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(omitDict, "_at_put_", ["st", 0]);
+    smalltalk.send(omitDict, "_at_put_", ["js", 0]);
+    smalltalk.send(omitDict, "_at_put_", ["jsdeploy", 0]);
+    smalltalk.send(omitDict, "_at_put_", ["_id", 0]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(crit, "_asJSON", [])]);
+    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", smalltalk.send(crit, "_asJSON", []), smalltalk.send(omitDict, "_asJSON", []), smalltalk.send(sortDict, "_asJSON", []), function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {var responseArray = nil;responseArray = smalltalk.send(smalltalk.Array || Array, "_new", []);smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);smalltalk.send(docs, "_do_", [function (aDoc) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("P: ", "__comma", [smalltalk.send(aDoc, "_at_", ["packageName"])]), "__comma", [" V: "]), "__comma", [smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);return smalltalk.send(responseArray, "_add_", [smalltalk.send(smalltalk.Association || Association, "_key_value_", [smalltalk.send(aDoc, "_at_", ["packageName"]), smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);}]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(responseArray, "_asJSON", [])]);return smalltalk.send($rec, "_end", []);}(aResponse);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {var responseArray = nil;responseArray = smalltalk.send(smalltalk.Array || Array, "_new", []);smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);smalltalk.send(docs, "_do_", [function (aDoc) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("P: ", "__comma", [smalltalk.send(aDoc, "_at_", ["packageName"])]), "__comma", [" V: "]), "__comma", [smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);return smalltalk.send(responseArray, "_add_", [smalltalk.send(smalltalk.Association || Association, "_key_value_", [smalltalk.send(aDoc, "_at_", ["packageName"]), smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);}]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(responseArray, "_asJSON", [])]);return smalltalk.send($rec, "_end", []);}(aResponse);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_login_password_onSuccess_onError_',
+smalltalk.method({
+selector: 'login:password:onSuccess:onError:',
+fn: function (anUser, aPassword, aSuccessBlock, anErrorBlock) {
+    var self = this;
+    var err = nil;
+    var mongo = nil;
+    var crit = nil;
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("CHECKLOGIN: ", "__comma", [anUser]), "__comma", [" Pass: "]), "__comma", [aPassword])]);
+    mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
+    crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(crit, "_at_put_", ["_id", anUser]);
+    smalltalk.send(mongo, "_find_criteria_do_", ["users", smalltalk.send(crit, "_asJSONString", []), function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["password"]), "__eq", [aPassword]), "_ifTrue_ifFalse_", [aSuccessBlock, function () {return smalltalk.send(anErrorBlock, "_value_", ["wrong Password"]);}]);}() : function () {return smalltalk.send(anErrorBlock, "_value_", ["Unknown user."]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["password"]), "__eq", [aPassword]), "_ifTrue_ifFalse_", [aSuccessBlock, function () {return smalltalk.send(anErrorBlock, "_value_", ["wrong Password"]);}]);}, function () {return smalltalk.send(anErrorBlock, "_value_", ["Unknown user."]);}]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_checkOwner_user_onSuccess_onError_',
+smalltalk.method({
+selector: 'checkOwner:user:onSuccess:onError:',
+fn: function (aPackage, anUser, aSuccessBlock, anErrorBlock) {
+    var self = this;
+    var err = nil;
+    var mongo = nil;
+    var crit = nil;
+    var omit = nil;
+    var sort = nil;
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("CHECKOWNER: ", "__comma", [aPackage]), "__comma", [" user: "]), "__comma", [anUser])]);
+    mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
+    crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(crit, "_at_put_", ["packageName", aPackage]);
+    omit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(omit, "_at_put_", ["st", 0]);
+    smalltalk.send(omit, "_at_put_", ["js", 0]);
+    smalltalk.send(omit, "_at_put_", ["jsdeploy", 0]);
+    sort = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", smalltalk.send(crit, "_asJSON", []), smalltalk.send(omit, "_asJSON", []), smalltalk.send(sort, "_asJSON", []), function (err, docs) {return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(docs, "_size", []), "__eq", [0]), "_or_", [function () {return smalltalk.send(smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["user"]), "__eq", [anUser]);}]), "_ifTrue_ifFalse_", [aSuccessBlock, function () {return smalltalk.send(anErrorBlock, "_value_", ["Your not the owner of this package"]);}]);}]);
     return self;
 }
 }),
@@ -313,5 +517,144 @@ fn: function () {
 }
 }),
 smalltalk.FileServer.klass);
+
+
+smalltalk.addClass('MongoDB', smalltalk.Object, ['path', 'http', 'fs', 'sys', 'url', 'db', 'server', 'host', 'port'], 'FileServer');
+smalltalk.addMethod(
+'_initialize',
+smalltalk.method({
+selector: 'initialize',
+fn: function () {
+    var self = this;
+    smalltalk.send(self, "_initialize", [], smalltalk.Object);
+    self['@path'] = smalltalk.send(self, "_require_", ["path"]);
+    self['@http'] = smalltalk.send(self, "_require_", ["http"]);
+    self['@fs'] = smalltalk.send(self, "_require_", ["fs"]);
+    self['@sys'] = smalltalk.send(self, "_require_", ["sys"]);
+    self['@url'] = smalltalk.send(self, "_require_", ["url"]);
+    self['@db'] = smalltalk.send(self, "_require_", ["mongodb"]);
+    self['@host'] = "127.0.0.1";
+    self['@port'] = 27017;
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
+smalltalk.addMethod(
+'_require_',
+smalltalk.method({
+selector: 'require:',
+fn: function (aModuleString) {
+    var self = this;
+    return smalltalk.send(typeof require == "undefined" ? nil : require, "_value_", [aModuleString]);
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
+smalltalk.addMethod(
+'_insert_document_',
+smalltalk.method({
+selector: 'insert:document:',
+fn: function (collectionName, aDict) {
+    var self = this;
+    var myHost = nil;
+    var myPort = nil;
+    myHost = self['@host'];
+    myPort = self['@port'];
+    var mongodb = require("mongodb");
+    var server = new (mongodb.Server)(myHost, myPort, {});
+    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.insert(aDict, {safe: true}, function (err, objects) {if (err) {console.warn(err.message);}});});
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
+smalltalk.addMethod(
+'_find_criteria_',
+smalltalk.method({
+selector: 'find:criteria:',
+fn: function (collectionName, aCriteria) {
+    var self = this;
+    var myHost = nil;
+    var myPort = nil;
+    var json = nil;
+    myHost = self['@host'];
+    myPort = self['@port'];
+    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
+    var mongodb = require("mongodb");
+    var server = new (mongodb.Server)(myHost, myPort, {});
+    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json).toArray(function (err, docs) {console.dir(docs);});});
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
+smalltalk.addMethod(
+'_find_criteria_do_',
+smalltalk.method({
+selector: 'find:criteria:do:',
+fn: function (collectionName, aCriteria, aBlock) {
+    var self = this;
+    var myHost = nil;
+    var myPort = nil;
+    var json = nil;
+    myHost = self['@host'];
+    myPort = self['@port'];
+    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
+    var mongodb = require("mongodb");
+    var server = new (mongodb.Server)(myHost, myPort, {});
+    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json).toArray(aBlock);});
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
+smalltalk.addMethod(
+'_find_criteria_sort_do_',
+smalltalk.method({
+selector: 'find:criteria:sort:do:',
+fn: function (collectionName, aCriteria, aSort, aBlock) {
+    var self = this;
+    var myHost = nil;
+    var myPort = nil;
+    var json = nil;
+    var sortJson = nil;
+    myHost = self['@host'];
+    myPort = self['@port'];
+    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
+    sortJson = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aSort]);
+    var mongodb = require("mongodb");
+    var server = new (mongodb.Server)(myHost, myPort, {});
+    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json).sort(sortJson).toArray(aBlock);});
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
+smalltalk.addMethod(
+'_find_criteria_omit_sort_do_',
+smalltalk.method({
+selector: 'find:criteria:omit:sort:do:',
+fn: function (collectionName, aCriteria, anOmit, aSort, aBlock) {
+    var self = this;
+    var myHost = nil;
+    var myPort = nil;
+    var json = nil;
+    var sortJson = nil;
+    var omitJson = nil;
+    myHost = self['@host'];
+    myPort = self['@port'];
+    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
+    sortJson = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aSort]);
+    omitJson = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [anOmit]);
+    var mongodb = require("mongodb");
+    var server = new (mongodb.Server)(myHost, myPort, {});
+    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json, omitJson).sort(sortJson).toArray(aBlock);});
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
 
 
