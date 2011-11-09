@@ -115,11 +115,9 @@ fn: function (aRequest, aResponse) {
     var urlObj = nil;
     var pathElements = nil;
     urlObj = smalltalk.send(self['@url'], "_parse_parseQueryString_", [smalltalk.send(aRequest, "_url", []), true]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("path: ", "__comma", [smalltalk.send(urlObj, "_pathname", [])])]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("urlObj query ", "__comma", [smalltalk.send(urlObj, "_query", [])])]);
     uri = smalltalk.send(urlObj, "_pathname", []);
     pathElements = smalltalk.send(uri, "_tokenize_", [unescape("/")]);
-    ($receiver = smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_size", []), "__eq", [3]), "_and_", [function () {return smalltalk.send(smalltalk.send(pathElements, "_second", []), "__eq", ["packages"]);}])).klass === smalltalk.Boolean ? $receiver ? function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("TRUE%21")]);return smalltalk.send(self, "_respondPackageSt_properties_to_", [smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_third", []), "_tokenize_", ["."]), "_first", []), smalltalk.send(urlObj, "_query", []), aResponse]);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("FALSE%21")]);filename = smalltalk.send(self['@path'], "_join_with_", [smalltalk.send(self, "_basePath", []), uri]);return smalltalk.send(self['@path'], "_exists_do_", [filename, function (boolean) {return ($receiver = boolean).klass === smalltalk.Boolean ? !$receiver ? function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}() : function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}() : smalltalk.send($receiver, "_ifFalse_ifTrue_", [function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}, function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}]);}]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("TRUE%21")]);return smalltalk.send(self, "_respondPackageSt_properties_to_", [smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_third", []), "_tokenize_", ["."]), "_first", []), smalltalk.send(urlObj, "_query", []), aResponse]);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [unescape("FALSE%21")]);filename = smalltalk.send(self['@path'], "_join_with_", [smalltalk.send(self, "_basePath", []), uri]);return smalltalk.send(self['@path'], "_exists_do_", [filename, function (boolean) {return ($receiver = boolean).klass === smalltalk.Boolean ? !$receiver ? function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}() : function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}() : smalltalk.send($receiver, "_ifFalse_ifTrue_", [function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}, function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}]);}]);}]);
+    ($receiver = smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_size", []), "__eq", [3]), "_and_", [function () {return smalltalk.send(smalltalk.send(pathElements, "_second", []), "__eq", ["packages"]);}])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondPackageSt_properties_to_", [smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_third", []), "_tokenize_", ["."]), "_first", []), smalltalk.send(urlObj, "_query", []), aResponse]);}() : function () {filename = smalltalk.send(self['@path'], "_join_with_", [smalltalk.send(self, "_basePath", []), uri]);return smalltalk.send(self['@path'], "_exists_do_", [filename, function (boolean) {return ($receiver = boolean).klass === smalltalk.Boolean ? !$receiver ? function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}() : function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}() : smalltalk.send($receiver, "_ifFalse_ifTrue_", [function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}, function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}]);}]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {return smalltalk.send(self, "_respondPackageSt_properties_to_", [smalltalk.send(smalltalk.send(smalltalk.send(pathElements, "_third", []), "_tokenize_", ["."]), "_first", []), smalltalk.send(urlObj, "_query", []), aResponse]);}, function () {filename = smalltalk.send(self['@path'], "_join_with_", [smalltalk.send(self, "_basePath", []), uri]);return smalltalk.send(self['@path'], "_exists_do_", [filename, function (boolean) {return ($receiver = boolean).klass === smalltalk.Boolean ? !$receiver ? function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}() : function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}() : smalltalk.send($receiver, "_ifFalse_ifTrue_", [function () {return smalltalk.send(self, "_respondNotFoundTo_", [aResponse]);}, function () {return smalltalk.send(self, "_respondFileNamed_to_", [filename, aResponse]);}]);}]);}]);
     return self;
 }
 }),
@@ -242,7 +240,7 @@ fn: function (aRequest, aResponse) {
     smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("POST RequestURL: ", "__comma", [requestURL])]);
     smalltalk.send(aRequest, "_setEncoding_", ["utf8"]);
     smalltalk.send(aRequest, "_on_do_", ["data", function (tmpData) {return data = tmpData;}]);
-    smalltalk.send(aRequest, "_on_do_", ["end", function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("POST OK: ", "__comma", [data])]);params = smalltalk.send(smalltalk.send(requestURL, "_trimLeft_", [unescape("/")]), "_tokenize_", [unescape("%3F")]);return smalltalk.send(self, "_try_catch_", [function () {return ($receiver = smalltalk.send(smalltalk.send(data, "_notNil", []), "_and_", [function () {return ($receiver = smalltalk.send(data, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0]);}])).klass === smalltalk.Boolean ? $receiver ? function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("Parameter: ", "__comma", [params])]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["createAccount:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["login:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["reload:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["commitPackage:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);return ($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["browse:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}]);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["keine Parameter: "]);return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.Smalltalk || Smalltalk, "_current", []), "_at_", [smalltalk.send(params, "_at_", [1])]), "_perform_", [smalltalk.send(params, "_at_", [2])]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("Parameter: ", "__comma", [params])]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["createAccount:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["login:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["reload:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["commitPackage:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);return ($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["browse:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}]);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["keine Parameter: "]);return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.Smalltalk || Smalltalk, "_current", []), "_at_", [smalltalk.send(params, "_at_", [1])]), "_perform_", [smalltalk.send(params, "_at_", [2])]);}]);}, function () {return smalltalk.send(self, "_respondInternalErrorTo_", [aResponse]);}]);}]);
+    smalltalk.send(aRequest, "_on_do_", ["end", function () {params = smalltalk.send(smalltalk.send(requestURL, "_trimLeft_", [unescape("/")]), "_tokenize_", [unescape("%3F")]);return smalltalk.send(self, "_try_catch_", [function () {return ($receiver = smalltalk.send(smalltalk.send(data, "_notNil", []), "_and_", [function () {return ($receiver = smalltalk.send(data, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0]);}])).klass === smalltalk.Boolean ? $receiver ? function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("Parameter: ", "__comma", [params])]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["createAccount:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["login:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["reload:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["commitPackage:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);return ($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["browse:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}]);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["keine Parameter: "]);return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.Smalltalk || Smalltalk, "_current", []), "_at_", [smalltalk.send(params, "_at_", [1])]), "_perform_", [smalltalk.send(params, "_at_", [2])]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("Parameter: ", "__comma", [params])]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["createAccount:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_createAccount_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["login:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_login_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["reload:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_reload_response_", [data, aResponse]);}]);($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["commitPackage:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_commit_response_", [smalltalk.send(smalltalk.JSON || JSON, "_parse_", [data]), aResponse]);}]);return ($receiver = smalltalk.send(smalltalk.send(params, "_at_", [2]), "__eq", ["browse:"])).klass === smalltalk.Boolean ? $receiver ? function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}() : nil : smalltalk.send($receiver, "_ifTrue_", [function () {return smalltalk.send(self, "_respondPublicPackageListTo_", [aResponse]);}]);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["keine Parameter: "]);return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.Smalltalk || Smalltalk, "_current", []), "_at_", [smalltalk.send(params, "_at_", [1])]), "_perform_", [smalltalk.send(params, "_at_", [2])]);}]);}, function (ex) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("EXCEPTION: ", "__comma", [ex])]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, smalltalk.send("unerwartet: ", "__comma", [ex])]);}]);}]);
     return self;
 }
 }),
@@ -257,7 +255,6 @@ fn: function (data, resp) {
     var err = nil;
     var mongo = nil;
     var crit = nil;
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("NEW createAccount: ", "__comma", [data])]);
     mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
     crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
     smalltalk.send(crit, "_at_put_", ["_id", smalltalk.send(data, "_at_", ["_id"])]);
@@ -339,15 +336,14 @@ fn: function (data, resp) {
     var user = nil;
     var password = nil;
     var packageName = nil;
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["commit "]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("DATA: ", "__comma", [data])]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["commit 2"]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send("commit: ", "__comma", [smalltalk.send(data, "_at_", ["packageName"])])]);
+    var version = nil;
     user = smalltalk.send(data, "_at_", ["user"]);
     password = smalltalk.send(data, "_at_", ["password"]);
     packageName = smalltalk.send(data, "_at_", ["packageName"]);
     smalltalk.send(data, "_at_put_", ["password", ""]);
-    smalltalk.send(self, "_login_password_onSuccess_onError_", [user, password, function () {return smalltalk.send(self, "_checkOwner_user_onSuccess_onError_", [packageName, user, function () {mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);smalltalk.send(mongo, "_insert_document_", ["packages", data]);return smalltalk.send(self, "_respondOKTo_message_", [resp, "Package saved."]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);
+    smalltalk.send(data, "_at_put_", ["packageMeta", smalltalk.send(smalltalk.JSON || JSON, "_parse_", [smalltalk.send(data, "_at_", ["packageMeta"])])]);
+    version = smalltalk.send(smalltalk.send(data, "_at_", ["packageMeta"]), "_at_", ["version"]);
+    smalltalk.send(self, "_login_password_onSuccess_onError_", [user, password, function () {return smalltalk.send(self, "_checkOwner_user_onSuccess_onError_", [packageName, user, function () {return smalltalk.send(self, "_checkVersion_version_onSuccess_onError_", [packageName, version, function () {mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);smalltalk.send(mongo, "_insert_document_", ["packages", data]);return smalltalk.send(self, "_respondOKTo_message_", [resp, "Package saved."]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);}, function (message) {return smalltalk.send(self, "_respondInternalErrorTo_message_", [resp, message]);}]);
     return self;
 }
 }),
@@ -361,12 +357,16 @@ fn: function (aPackageName, props, aResponse) {
     var self = this;
     var mongo = nil;
     var crit = nil;
+    var omit = nil;
+    var sort = nil;
     mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
     crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
     smalltalk.send(crit, "_at_put_", ["packageName", aPackageName]);
     smalltalk.send(crit, "_at_put_", ["packageMeta.version", smalltalk.send(props, "_at_", ["version"])]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(crit, "_asJSON", [])]);
-    smalltalk.send(mongo, "_find_criteria_do_", ["packages", smalltalk.send(crit, "_asJSON", []), function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["st"])]);return smalltalk.send($rec, "_end", []);}(aResponse);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["st"])]);return smalltalk.send($rec, "_end", []);}(aResponse);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}]);}]);
+    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [crit]);
+    omit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    sort = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", crit, omit, sort, function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.HashedCollection._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["st"])]);return smalltalk.send($rec, "_end", []);}(aResponse);}() : function () {return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.HashedCollection._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["st"])]);return smalltalk.send($rec, "_end", []);}(aResponse);}, function () {return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}]);}]);
     return self;
 }
 }),
@@ -392,8 +392,7 @@ fn: function (aResponse) {
     smalltalk.send(omitDict, "_at_put_", ["js", 0]);
     smalltalk.send(omitDict, "_at_put_", ["jsdeploy", 0]);
     smalltalk.send(omitDict, "_at_put_", ["_id", 0]);
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(crit, "_asJSON", [])]);
-    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", smalltalk.send(crit, "_asJSON", []), smalltalk.send(omitDict, "_asJSON", []), smalltalk.send(sortDict, "_asJSON", []), function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {var responseArray = nil;responseArray = smalltalk.send(smalltalk.Array || Array, "_new", []);smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);smalltalk.send(docs, "_do_", [function (aDoc) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("P: ", "__comma", [smalltalk.send(aDoc, "_at_", ["packageName"])]), "__comma", [" V: "]), "__comma", [smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);return smalltalk.send(responseArray, "_add_", [smalltalk.send(smalltalk.Association || Association, "_key_value_", [smalltalk.send(aDoc, "_at_", ["packageName"]), smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);}]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(responseArray, "_asJSON", [])]);return smalltalk.send($rec, "_end", []);}(aResponse);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {var responseArray = nil;responseArray = smalltalk.send(smalltalk.Array || Array, "_new", []);smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER"]);smalltalk.send(docs, "_do_", [function (aDoc) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("P: ", "__comma", [smalltalk.send(aDoc, "_at_", ["packageName"])]), "__comma", [" V: "]), "__comma", [smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);return smalltalk.send(responseArray, "_add_", [smalltalk.send(smalltalk.Association || Association, "_key_value_", [smalltalk.send(aDoc, "_at_", ["packageName"]), smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);}]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.Dictionary._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(responseArray, "_asJSON", [])]);return smalltalk.send($rec, "_end", []);}(aResponse);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}]);}]);
+    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", crit, omitDict, sortDict, function (err, docs) {return ($receiver = ($receiver = smalltalk.send(docs, "_size", [])).klass === smalltalk.Number ? $receiver > 0 : smalltalk.send($receiver, "__gt", [0])).klass === smalltalk.Boolean ? $receiver ? function () {var responseArray = nil;responseArray = smalltalk.send(smalltalk.Array || Array, "_new", []);smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER: "]);smalltalk.send(docs, "_do_", [function (aDoc) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("P: ", "__comma", [smalltalk.send(aDoc, "_at_", ["packageName"])]), "__comma", [" V: "]), "__comma", [smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);return smalltalk.send(responseArray, "_add_", [smalltalk.send(smalltalk.Association || Association, "_key_value_", [smalltalk.send(aDoc, "_at_", ["packageName"]), smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);}]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.HashedCollection._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(responseArray, "_asJSONString", [])]);return smalltalk.send($rec, "_end", []);}(aResponse);}() : function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}() : smalltalk.send($receiver, "_ifTrue_ifFalse_", [function () {var responseArray = nil;responseArray = smalltalk.send(smalltalk.Array || Array, "_new", []);smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["TREFFER: "]);smalltalk.send(docs, "_do_", [function (aDoc) {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("P: ", "__comma", [smalltalk.send(aDoc, "_at_", ["packageName"])]), "__comma", [" V: "]), "__comma", [smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);return smalltalk.send(responseArray, "_add_", [smalltalk.send(smalltalk.Association || Association, "_key_value_", [smalltalk.send(aDoc, "_at_", ["packageName"]), smalltalk.send(smalltalk.send(aDoc, "_at_", ["packageMeta"]), "_at_", ["version"])])]);}]);return function ($rec) {smalltalk.send($rec, "_writeHead_options_", [200, smalltalk.HashedCollection._fromPairs_([smalltalk.send(unescape("Content-Type"), "__minus_gt", [unescape("text/plain")])])]);smalltalk.send($rec, "_write_", [smalltalk.send(responseArray, "_asJSONString", [])]);return smalltalk.send($rec, "_end", []);}(aResponse);}, function () {smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", ["NIX GEFUNDEN"]);return smalltalk.send(self, "_respondInternalErrorTo_message_", [aResponse, "not found"]);}]);}]);
     return self;
 }
 }),
@@ -408,7 +407,6 @@ fn: function (anUser, aPassword, aSuccessBlock, anErrorBlock) {
     var err = nil;
     var mongo = nil;
     var crit = nil;
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("CHECKLOGIN: ", "__comma", [anUser]), "__comma", [" Pass: "]), "__comma", [aPassword])]);
     mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
     crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
     smalltalk.send(crit, "_at_put_", ["_id", anUser]);
@@ -429,7 +427,6 @@ fn: function (aPackage, anUser, aSuccessBlock, anErrorBlock) {
     var crit = nil;
     var omit = nil;
     var sort = nil;
-    smalltalk.send(typeof console == "undefined" ? nil : console, "_log_", [smalltalk.send(smalltalk.send(smalltalk.send("CHECKOWNER: ", "__comma", [aPackage]), "__comma", [" user: "]), "__comma", [anUser])]);
     mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
     crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
     smalltalk.send(crit, "_at_put_", ["packageName", aPackage]);
@@ -438,7 +435,33 @@ fn: function (aPackage, anUser, aSuccessBlock, anErrorBlock) {
     smalltalk.send(omit, "_at_put_", ["js", 0]);
     smalltalk.send(omit, "_at_put_", ["jsdeploy", 0]);
     sort = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
-    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", smalltalk.send(crit, "_asJSON", []), smalltalk.send(omit, "_asJSON", []), smalltalk.send(sort, "_asJSON", []), function (err, docs) {return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(docs, "_size", []), "__eq", [0]), "_or_", [function () {return smalltalk.send(smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["user"]), "__eq", [anUser]);}]), "_ifTrue_ifFalse_", [aSuccessBlock, function () {return smalltalk.send(anErrorBlock, "_value_", ["Your not the owner of this package"]);}]);}]);
+    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", crit, omit, sort, function (err, docs) {return smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(docs, "_size", []), "__eq", [0]), "_or_", [function () {return smalltalk.send(smalltalk.send(smalltalk.send(docs, "_first", []), "_at_", ["user"]), "__eq", [anUser]);}]), "_ifTrue_ifFalse_", [aSuccessBlock, function () {return smalltalk.send(anErrorBlock, "_value_", ["Your not the owner of this package"]);}]);}]);
+    return self;
+}
+}),
+smalltalk.FileServer);
+
+smalltalk.addMethod(
+'_checkVersion_version_onSuccess_onError_',
+smalltalk.method({
+selector: 'checkVersion:version:onSuccess:onError:',
+fn: function (aPackage, version, aSuccessBlock, anErrorBlock) {
+    var self = this;
+    var err = nil;
+    var mongo = nil;
+    var crit = nil;
+    var omit = nil;
+    var sort = nil;
+    mongo = smalltalk.send(smalltalk.MongoDB || MongoDB, "_new", []);
+    crit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(crit, "_at_put_", ["packageName", aPackage]);
+    smalltalk.send(crit, "_at_put_", ["packageMeta.version", version]);
+    omit = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(omit, "_at_put_", ["st", 0]);
+    smalltalk.send(omit, "_at_put_", ["js", 0]);
+    smalltalk.send(omit, "_at_put_", ["jsdeploy", 0]);
+    sort = smalltalk.send(smalltalk.Dictionary || Dictionary, "_new", []);
+    smalltalk.send(mongo, "_find_criteria_omit_sort_do_", ["packages", crit, omit, sort, function (err, docs) {return smalltalk.send(smalltalk.send(smalltalk.send(docs, "_size", []), "__eq", [0]), "_ifTrue_ifFalse_", [aSuccessBlock, function () {return smalltalk.send(anErrorBlock, "_value_", [unescape("there%20is%20already%20a%20package%20with%20the%20same%20version-number")]);}]);}]);
     return self;
 }
 }),
@@ -563,70 +586,8 @@ fn: function (collectionName, aDict) {
     myHost = self['@host'];
     myPort = self['@port'];
     var mongodb = require("mongodb");
-    var server = new (mongodb.Server)(myHost, myPort, {});
-    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.insert(aDict, {safe: true}, function (err, objects) {if (err) {console.warn(err.message);}});});
-    return self;
-}
-}),
-smalltalk.MongoDB);
-
-smalltalk.addMethod(
-'_find_criteria_',
-smalltalk.method({
-selector: 'find:criteria:',
-fn: function (collectionName, aCriteria) {
-    var self = this;
-    var myHost = nil;
-    var myPort = nil;
-    var json = nil;
-    myHost = self['@host'];
-    myPort = self['@port'];
-    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
-    var mongodb = require("mongodb");
-    var server = new (mongodb.Server)(myHost, myPort, {});
-    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json).toArray(function (err, docs) {console.dir(docs);});});
-    return self;
-}
-}),
-smalltalk.MongoDB);
-
-smalltalk.addMethod(
-'_find_criteria_do_',
-smalltalk.method({
-selector: 'find:criteria:do:',
-fn: function (collectionName, aCriteria, aBlock) {
-    var self = this;
-    var myHost = nil;
-    var myPort = nil;
-    var json = nil;
-    myHost = self['@host'];
-    myPort = self['@port'];
-    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
-    var mongodb = require("mongodb");
-    var server = new (mongodb.Server)(myHost, myPort, {});
-    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json).toArray(aBlock);});
-    return self;
-}
-}),
-smalltalk.MongoDB);
-
-smalltalk.addMethod(
-'_find_criteria_sort_do_',
-smalltalk.method({
-selector: 'find:criteria:sort:do:',
-fn: function (collectionName, aCriteria, aSort, aBlock) {
-    var self = this;
-    var myHost = nil;
-    var myPort = nil;
-    var json = nil;
-    var sortJson = nil;
-    myHost = self['@host'];
-    myPort = self['@port'];
-    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
-    sortJson = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aSort]);
-    var mongodb = require("mongodb");
-    var server = new (mongodb.Server)(myHost, myPort, {});
-    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json).sort(sortJson).toArray(aBlock);});
+    var server = new mongodb.Server(myHost, myPort, {});
+    (new mongodb.Db("test", server, {})).open(function (error, client) {var collection = new mongodb.Collection(client, collectionName);collection.insert(aDict, {safe: true}, function (err, objects) {if (err) {console.warn(err.message);}});});
     return self;
 }
 }),
@@ -636,21 +597,37 @@ smalltalk.addMethod(
 '_find_criteria_omit_sort_do_',
 smalltalk.method({
 selector: 'find:criteria:omit:sort:do:',
-fn: function (collectionName, aCriteria, anOmit, aSort, aBlock) {
+fn: function (collectionName, aCriteriaDict, anOmitDict, aSortDict, aBlock) {
     var self = this;
     var myHost = nil;
     var myPort = nil;
-    var json = nil;
+    var critJson = nil;
     var sortJson = nil;
     var omitJson = nil;
+    var o = nil;
     myHost = self['@host'];
     myPort = self['@port'];
-    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aCriteria]);
-    sortJson = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [aSort]);
-    omitJson = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [anOmit]);
+    critJson = smalltalk.send(self, "_toJSON_", [aCriteriaDict]);
+    omitJson = smalltalk.send(self, "_toJSON_", [anOmitDict]);
+    sortJson = smalltalk.send(self, "_toJSON_", [aSortDict]);
     var mongodb = require("mongodb");
-    var server = new (mongodb.Server)(myHost, myPort, {});
-    (new (mongodb.Db)("test", server, {})).open(function (error, client) {var collection = new (mongodb.Collection)(client, collectionName);collection.find(json, omitJson).sort(sortJson).toArray(aBlock);});
+    var server = new mongodb.Server(myHost, myPort, {});
+    (new mongodb.Db("test", server, {})).open(function (error, client) {var collection = new mongodb.Collection(client, collectionName);collection.find(critJson, omitJson).sort(sortJson).toArray(aBlock);});
+    return self;
+}
+}),
+smalltalk.MongoDB);
+
+smalltalk.addMethod(
+'_toJSON_',
+smalltalk.method({
+selector: 'toJSON:',
+fn: function (aDict) {
+    var self = this;
+    var json = nil;
+    json = smalltalk.send(smalltalk.JSON || JSON, "_parse_", [unescape("%7B%7D")]);
+    smalltalk.send(smalltalk.send(aDict, "_keys", []), "_do_", [function (key) {return smalltalk.send(json, "_at_put_", [key, smalltalk.send(aDict, "_at_", [key])]);}]);
+    return json;
     return self;
 }
 }),
