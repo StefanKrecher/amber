@@ -21,7 +21,7 @@ port
 
 createAccount: data response: resp
 | err mongo crit |
-console log: 'NEW createAccount: ', data.
+
 mongo := MongoDB new.
 crit := Dictionary new.
 crit at: '_id' put: (data at: '_id').
@@ -38,28 +38,14 @@ login: data response: resp
 | err mongo crit |
 console log: 'LOGIN ', data.
 console log: 'user: ', (data at: '_id').
-"
-mongo := MongoDB new.
-crit := Dictionary new.
-crit at: '_id' put: (data at: '_id').
-"
+
 console log: 'PW: ', (data at: 'password').
 
-self login: (data at: '_id') password: (data at: 'password') onSuccess: [ self respondOKTo: resp message: 'login successfull' ] onError: [ :message | self respondInternalErrorTo: resp message: message ].
-
-"
-mongo find: 'users' criteria: (crit asJSON) do: [:err :docs | 
-                                                 (docs size > 0)
-                                                 	ifTrue: [  
-                                                          ((docs first at: 'password') = (json at: 'password'))
-                                                          	ifTrue: [ self respondOKTo: resp message: 'login successfull' ]
-                                                          	ifFalse: [ self respondInternalErrorTo: resp message: 'wrong Password' ].
-                                                         ]
-                                                 	ifFalse:[ 
-                                                          self respondInternalErrorTo: resp message: 'Unknown user.'.
-	                                                ].
-                                                 ]
-"
+self login: (data at: '_id') password: (data at: 'password') onSuccess: [ 
+	self respondOKTo: resp message: 'login successfull' 
+] onError: [ :message | 
+	self respondInternalErrorTo: resp message: message 
+].
 !
 
 reload: aPackage response: resp
@@ -71,24 +57,27 @@ self respondOKTo: resp message: 'Package ', aPackage, ' reloaded on the server.'
 !
 
 commit: data response: resp
-| json err mongo crit user password packageName |
-console log: 'commit '.
-console log: 'DATA: ', data.
-console log: 'commit 2'.
-console log: 'commit: ', (data at: 'packageName').
+| json err mongo crit user password packageName version |
 
 user := data at: 'user'.
 password := data at: 'password'.
 packageName := data at: 'packageName'.
 
 data at: 'password' put: ''.
+data at: 'packageMeta' put: (JSON parse: (data at: 'packageMeta')).
+
+version := (data at: 'packageMeta') at: 'version'.
 
 self login: user password: password 
 	onSuccess: [
 		self checkOwner: packageName user: user onSuccess: [
-			mongo := MongoDB new.
-			mongo insert: 'packages' document: data. 
-                  	self respondOKTo: resp message: 'Package saved.'
+			self checkVersion: packageName version: version onSuccess: [
+				mongo := MongoDB new.
+				mongo insert: 'packages' document: data. 
+                  		self respondOKTo: resp message: 'Package saved.'
+			] onError: [ :message |
+				self respondInternalErrorTo: resp message: message
+			]
                 ] onError: [ :message | 
                 	self respondInternalErrorTo: resp message: message
                 ]
@@ -100,7 +89,6 @@ self login: user password: password
 
 login: anUser password: aPassword onSuccess: aSuccessBlock onError: anErrorBlock
 | err mongo crit |
-console log: 'CHECKLOGIN: ', anUser, ' Pass: ', aPassword.
 
 mongo := MongoDB new.
 crit := Dictionary new.
@@ -121,11 +109,9 @@ mongo find: 'users' criteria: (crit asJSONString) do: [:err :docs |
 
 checkOwner: aPackage user: anUser onSuccess: aSuccessBlock onError: anErrorBlock
 | err mongo crit omit sort |
-console log: 'CHECKOWNER: ', aPackage, ' user: ', anUser.
 
 mongo := MongoDB new.
 crit := Dictionary new.
-"crit at: '_id' put: anUser."
 crit at: 'packageName' put: aPackage.
 
 omit := Dictionary new.
@@ -135,11 +121,36 @@ omit at: 'jsdeploy' put: 0.
 
 sort := Dictionary new.
 
-mongo find: 'packages' criteria: (crit asJSON) omit: (omit asJSON) sort: (sort asJSON) do: [:err :docs | 
+mongo find: 'packages' criteria: crit omit: omit sort: sort do: [:err :docs | 
                                                  ((docs size = 0) or: [ (docs first at: 'user') = anUser ])
                                                  	ifTrue: aSuccessBlock
                                                  	ifFalse:[ 
                                                           anErrorBlock value: 'Your not the owner of this package'.
+	                                                ].
+                                                 ]
+!
+
+checkVersion: aPackage version: version onSuccess: aSuccessBlock onError: anErrorBlock
+| err mongo crit omit sort |
+
+mongo := MongoDB new.
+crit := Dictionary new.
+crit at: 'packageName' put: aPackage.
+crit at: 'packageMeta.version' put: version.
+
+omit := Dictionary new.
+omit at: 'st' put: 0.
+omit at: 'js' put: 0.
+omit at: 'jsdeploy' put: 0.
+
+sort := Dictionary new.
+
+mongo find: 'packages' criteria: crit omit: omit sort: sort do: [:err :docs | 
+                                                 (docs size = 0) 
+                                                 	ifTrue: 
+								aSuccessBlock
+                                                 	ifFalse:[ 
+								anErrorBlock value: 'there is already a package with the same version-number'.
 	                                                ].
                                                  ]
 ! !
@@ -188,21 +199,15 @@ handleRequest: aRequest respondTo: aResponse
 handleGETRequest: aRequest respondTo: aResponse
 	| uri filename urlObj pathElements |
 	urlObj := url parse: (aRequest url) parseQueryString: true. 
-	console log: 'path: ', (urlObj pathname).
-	console log: 'urlObj query ', (urlObj query).
 	uri := urlObj pathname.
 
 	pathElements := uri tokenize: '/'.
 	((pathElements size = 3) and: [pathElements second = 'packages'])
 		ifTrue: [
-                  console log: 'TRUE!!'.
                   self respondPackageSt: ((pathElements third tokenize: '.') first) properties: (urlObj query) to: aResponse.
-		"self respondOKTo: aResponse."
                 ]
 		ifFalse: [
-                 console log: 'FALSE!!'.
 			filename := path join: self basePath with: uri.
-			"console log: (aRequest data)."
 			path exists: filename do: [:boolean | 
 				boolean 
 					ifFalse: [self respondNotFoundTo: aResponse]
@@ -288,7 +293,6 @@ respondFileNamedOld: aFilename to: aResponse
 
 handlePOSTRequest: aRequest respondTo: aResponse
 	| data requestURL params ret  |
-
 	requestURL := aRequest url.
 	console log: 'POST RequestURL: ', requestURL.
 	"console log: 'POST Request: ', aRequest."
@@ -298,7 +302,6 @@ handlePOSTRequest: aRequest respondTo: aResponse
 	aRequest on: #data do: [:tmpData |  data := tmpData ].
 
 	aRequest on: #end do: [
-          	console log: 'POST OK: ', data.
           
          	params := (requestURL trimLeft: '/') tokenize: '?'.
          
@@ -323,8 +326,9 @@ handlePOSTRequest: aRequest respondTo: aResponse
                           (Smalltalk current at: (params at: 1)) perform: (params at: 2).
                           ].
 		"self respondOKTo: aResponse"
-          ] catch: [
-            	self respondInternalErrorTo: aResponse.
+          ] catch: [ :ex |
+		console log: 'EXCEPTION: ', ex.
+            	self respondInternalErrorTo: aResponse message: 'unerwartet: ', ex.
             ]
         ]
 !
@@ -345,32 +349,28 @@ respondOKTo: aResponse message: aMessage
 
 respondPackageSt: aPackageName properties: props to: aResponse
 
-| mongo crit |
+| mongo crit omit sort|
 
 mongo := MongoDB new.
 crit := Dictionary new.
 crit at: 'packageName' put: aPackageName.
 crit at: 'packageMeta.version' put: (props at: 'version').
-console log: (crit asJSON).
-"console log: ('PROPS: ', props asJSON)."
-mongo find: 'packages' criteria: (crit asJSON) do: [:err :docs | 
+console log: (crit).
+
+omit := Dictionary new.
+sort := Dictionary new.
+
+mongo find: 'packages' criteria: crit omit: omit sort: sort  do: [:err :docs | 
                                                  (docs size > 0)
                                                  	ifTrue: [  
-                                                          	console log: 'TREFFER'.
 						                  aResponse
 									writeHead: 200 options:  #{'Content-Type' -> 'text/plain'};
 									write: (docs first at: 'st'); end.          
                                                          ]
                                                  	ifFalse:[ 
-                                                          		console log: 'NIX GEFUNDEN'.
 		                                                        self respondInternalErrorTo: aResponse message: 'not found'.
                                                                 ].
                                                 ].
-"
-                  aResponse
-			writeHead: 200 options:  #{'Content-Type' -> 'txt'};
-			write: 'data'; end.
-"
 !
 
 respondPublicPackageListTo: aResponse 
@@ -378,27 +378,24 @@ respondPublicPackageListTo: aResponse
 
 mongo := MongoDB new.
 crit := Dictionary new.
-"crit at: 'packageName' put: aPackageName.
-crit at: 'packageMeta.version' put: (props at: 'version')."
+
 sortDict := Dictionary new.
 sortDict at: 'packageName' put: 1.
 sortDict at: 'packageMeta.version' put: 1.
 
 omitDict := Dictionary new.
+
 omitDict at: 'st' put: 0.
 omitDict at: 'js' put: 0.
 omitDict at: 'jsdeploy' put: 0.
 omitDict at: '_id' put: 0.
 
-console log: (crit asJSON).
-"console log: ('PROPS: ', props asJSON)."
-"find: collectionName criteria: aCriteria sort: aSort do: aBlock"
-mongo find: 'packages' criteria: (crit asJSON) omit: (omitDict asJSON) sort: (sortDict asJSON) do: [:err :docs | 
+mongo find: 'packages' criteria: crit omit: omitDict sort: sortDict do: [:err :docs | 
                                                  (docs size > 0)
                                                  	ifTrue: [  
                                                           	| responseArray |
                                                           	responseArray := Array new.
-                                                          	console log: 'TREFFER'.
+                                                          	console log: 'TREFFER: '.
                                                           	docs do: [
                                                                   :aDoc | 
                                                                   	console log: 'P: ', (aDoc at: 'packageName'), ' V: ', ((aDoc at: 'packageMeta') at: 'version'). 
@@ -406,18 +403,13 @@ mongo find: 'packages' criteria: (crit asJSON) omit: (omitDict asJSON) sort: (so
                                                                 ].
 						                  aResponse
 									writeHead: 200 options:  #{'Content-Type' -> 'text/plain'};
-									write: (responseArray asJSON) ; end.          
+									write: (responseArray asJSONString) ; end.          
                                                          ]
                                                  	ifFalse:[ 
                                                           		console log: 'NIX GEFUNDEN'.
 		                                                        self respondInternalErrorTo: aResponse message: 'not found'.
                                                                 ].
                                                 ].
-"
-                  aResponse
-			writeHead: 200 options:  #{'Content-Type' -> 'txt'};
-			write: 'data'; end.
-"
 ! !
 
 !FileServer methodsFor: 'starting'!
@@ -917,68 +909,29 @@ new mongodb.Db('test', server, {}).open(function (error, client) {
 });>.
 !
 
-find: collectionName criteria: aCriteria
-| myHost myPort json |
+find: collectionName criteria: aCriteriaDict omit: anOmitDict sort: aSortDict do: aBlock
+| myHost myPort critJson sortJson omitJson o |
 myHost := host.
 myPort := port.
 
-json := JSON parse: aCriteria.
+critJson := self toJSON: aCriteriaDict.
+
+omitJson := self toJSON: anOmitDict.
+
+sortJson := self toJSON: aSortDict.
 
 <var mongodb = require('mongodb');
 var server = new mongodb.Server(myHost, myPort, {});
 new mongodb.Db('test', server, {}).open(function (error, client) {
   var collection = new mongodb.Collection(client, collectionName);
-  collection.find(json).toArray(function(err, docs) {
-    console.dir(docs);
-  });
+  collection.find(critJson, omitJson).sort(sortJson).toArray(aBlock);
 });>.
 !
 
-find: collectionName criteria: aCriteria do: aBlock
-| myHost myPort json |
-myHost := host.
-myPort := port.
-
-json := JSON parse: aCriteria.
-
-<var mongodb = require('mongodb');
-var server = new mongodb.Server(myHost, myPort, {});
-new mongodb.Db('test', server, {}).open(function (error, client) {
-  var collection = new mongodb.Collection(client, collectionName);
-  collection.find(json).toArray(aBlock);
-});>.
-!
-
-find: collectionName criteria: aCriteria sort: aSort do: aBlock
-| myHost myPort json sortJson |
-myHost := host.
-myPort := port.
-
-json := JSON parse: aCriteria.
-sortJson := JSON parse: aSort.
-
-<var mongodb = require('mongodb');
-var server = new mongodb.Server(myHost, myPort, {});
-new mongodb.Db('test', server, {}).open(function (error, client) {
-  var collection = new mongodb.Collection(client, collectionName);
-  collection.find(json).sort(sortJson).toArray(aBlock);
-});>.
-!
-
-find: collectionName criteria: aCriteria omit: anOmit sort: aSort do: aBlock
-| myHost myPort json sortJson omitJson |
-myHost := host.
-myPort := port.
-
-json := JSON parse: aCriteria.
-sortJson := JSON parse: aSort.
-omitJson := JSON parse: anOmit.
-
-<var mongodb = require('mongodb');
-var server = new mongodb.Server(myHost, myPort, {});
-new mongodb.Db('test', server, {}).open(function (error, client) {
-  var collection = new mongodb.Collection(client, collectionName);
-  collection.find(json, omitJson).sort(sortJson).toArray(aBlock);
-});>.
+toJSON: aDict
+| json |
+json := JSON parse: '{}'.
+aDict keys do: [ :key | json at: key put: (aDict at: key) ].
+^json
 ! !
 
